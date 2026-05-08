@@ -6,7 +6,7 @@ from django.utils import timezone
 # Enums that are used within the classes are here.
 
 
-class MeasurementUnit(models.TextChoices):
+class MeasurementUnit(models.IntegerChoices):
     PIECE = 0
     PLATE = 1
     GLASS = 2
@@ -15,7 +15,7 @@ class MeasurementUnit(models.TextChoices):
     SLICE = 5
 
 
-class Mood(models.TextChoices):
+class Mood(models.IntegerChoices):
     HORRIBLE = 0
     BAD = 1
     NEUTRAL = 2
@@ -27,8 +27,11 @@ class Mood(models.TextChoices):
 
 class User(models.Model):
     username = models.CharField(max_length=50)
-    email = models.CharField(max_length=0)
+    email = models.CharField(max_length=100)
     password = models.CharField(max_length=50)
+    calories_goal = models.IntegerField()
+    gl_goal = models.IntegerField()
+    activity_goal = models.IntegerField()
     bucket_balance = models.IntegerField(default=0)
 
     def __str__(self):
@@ -56,14 +59,12 @@ class Activity(models.Model):
 
 class DailyPlan(models.Model):
     date = models.DateField()
-    calories_goal = models.IntegerField()
-    gl_goal = models.IntegerField()
-    activity_goal = models.IntegerField()
     weight = models.IntegerField()
     waist = models.IntegerField()
     chest = models.IntegerField()
     thighs = models.IntegerField()
     mood = models.IntegerField(choices=Mood, default=Mood.NEUTRAL)
+    success = models.BooleanField()
 
     def __str__(self):
         return f"Daily plan on day {self.date}"
