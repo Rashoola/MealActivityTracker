@@ -26,7 +26,7 @@ class Mood(models.IntegerChoices):
 #  The independent domain classes are written here.
 
 class User(models.Model):
-    username = models.CharField(max_length=50)
+    username = models.CharField(max_length=50, unique=True)
     email = models.CharField(max_length=100)
     password = models.CharField(max_length=50)
     calories_goal = models.IntegerField()
@@ -39,7 +39,7 @@ class User(models.Model):
 
 
 class Food(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     calories_per_100 = models.IntegerField()
     gl_index = models.IntegerField()
     mass_per_descriptive_unit = models.IntegerField()
@@ -50,7 +50,7 @@ class Food(models.Model):
 
 
 class Activity(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     calories_burn_per_min = models.IntegerField()
 
     def __str__(self):
@@ -71,7 +71,7 @@ class DailyPlan(models.Model):
 
 
 class Flower(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=1024)
     water_required = models.IntegerField()
 
@@ -83,7 +83,7 @@ class Flower(models.Model):
 
 class Meal(models.Model):
     daily_plan = models.ForeignKey(DailyPlan, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     time = models.TimeField(default=timezone.now)
 
     def __str__(self):
@@ -91,7 +91,7 @@ class Meal(models.Model):
 
 
 class Medicine(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
