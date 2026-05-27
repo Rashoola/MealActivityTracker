@@ -34,6 +34,12 @@ class User(models.Model):
     activity_goal = models.IntegerField()
     bucket_balance = models.IntegerField(default=0)
 
+    @property
+    def daily_plan_generated(self):
+        today = timezone.now().date()
+
+        return self.dailyplan_set.filter(date=today).exists()
+
     def __str__(self):
         return self.username
 
@@ -58,6 +64,7 @@ class Activity(models.Model):
 
 
 class DailyPlan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     date = models.DateField()
     weight = models.IntegerField()
     waist = models.IntegerField()

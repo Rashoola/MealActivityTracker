@@ -144,7 +144,8 @@ def login(request):
             "calories_goal": user.calories_goal,
             "gl_goal": user.gl_goal,
             "activity_goal": user.activity_goal,
-            "bucket_balance": user.bucket_balance
+            "bucket_balance": user.bucket_balance,
+            "daily_plan_generated": user.daily_plan_generated
         })
 
     except json.JSONDecodeError:
@@ -205,7 +206,8 @@ def update_user(request, user_id):
             "calories_goal": user.calories_goal,
             "gl_goal": user.gl_goal,
             "activity_goal": user.activity_goal,
-            "bucket_balance": user.bucket_balance
+            "bucket_balance": user.bucket_balance,
+            "daily_plan_generated": user.daily_plan_generated
         })
 
     except json.JSONDecodeError:
