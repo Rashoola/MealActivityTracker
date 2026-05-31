@@ -2,7 +2,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
-from .models import User
+from .models import User, DailyPlan
+from datetime import date, timedelta
 import json
 
 
@@ -214,3 +215,60 @@ def update_user(request, user_id):
         return JsonResponse({
             "error": "Invalid JSON"
         }, status=400)
+
+
+# =========================
+# GENERATE DAILY PLAN
+# =========================
+
+@csrf_exempt
+def generate_daily_plan(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse(
+            {"error": "User not found"},
+            status=404
+        )
+
+    today = date.today()
+
+    # Prevent duplicates for the same day
+    if DailyPlan.objects.filter(user=user, date=today).exists():
+        return JsonResponse(
+            {"error": "Daily plan for today already exists"},
+            status=400
+        )
+
+    yesterday = today - timedelta(days=1)
+
+    previous_plan = DailyPlan.objects.filter(
+        user=user,
+        date=yesterday
+    ).first()
+
+    if previous_plan:
+        weight = previous_plan.weight
+        waist = previous_plan.waist
+        chest = previous_plan.chest
+        thighs = previous_plan.thighs
+    else:
+        # Choose appropriate defaults
+        weight = 0
+        waist = 0
+        chest = 0
+        thighs = 0
+
+    daily_plan = DailyPlan.objects.create(
+        user=user,
+        date=today,
+        weight=weight,
+        waist=waist,
+        chest=chest,
+        thighs=thighs,
+    )
+
+    return JsonResponse({
+        "message": "Daily plan created",
+        "daily_plan_id": daily_plan.id
+    })

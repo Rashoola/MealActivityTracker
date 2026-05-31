@@ -71,7 +71,7 @@ class DailyPlan(models.Model):
     chest = models.IntegerField()
     thighs = models.IntegerField()
     mood = models.IntegerField(choices=Mood, default=Mood.NEUTRAL)
-    success = models.BooleanField()
+    success = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Daily plan on day {self.date}"
