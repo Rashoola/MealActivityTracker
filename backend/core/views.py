@@ -1,8 +1,11 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from .models import User, DailyPlan
+from .serializers import DailyPlanSerializer
 from datetime import date, timedelta
 import json
 
@@ -272,3 +275,19 @@ def generate_daily_plan(request, user_id):
         "message": "Daily plan created",
         "daily_plan_id": daily_plan.id
     })
+
+@api_view(["GET"])
+def show_current_daily_plan(request, user_id):
+    try:
+        daily_plan = DailyPlan.objects.get(
+            user_id=user_id,
+            date=date.today()
+        )
+    except DailyPlan.DoesNotExist:
+        return Response(
+            {"error": "Daily plan not found"},
+            status=404
+        )
+
+    serializer = DailyPlanSerializer(daily_plan)
+    return Response(serializer.data)
