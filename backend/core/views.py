@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
-from .models import User, DailyPlan
-from .serializers import DailyPlanSerializer
+from .models import User, DailyPlan, Food, Activity
+from .serializers import DailyPlanSerializer, FoodSerializer, ActivitySerializer
 from datetime import date, timedelta
 import json
 
@@ -276,6 +276,9 @@ def generate_daily_plan(request, user_id):
         "daily_plan_id": daily_plan.id
     })
 
+# =========================
+# SHOW THE CURRENT DAILY PLAN
+# =========================
 @api_view(["GET"])
 def show_current_daily_plan(request, user_id):
     try:
@@ -290,4 +293,25 @@ def show_current_daily_plan(request, user_id):
         )
 
     serializer = DailyPlanSerializer(daily_plan)
+    return Response(serializer.data)
+
+# =========================
+# FETCH ALL FOODS
+# =========================
+
+@api_view(["GET"])
+def fetch_all_foods(request):
+    foods = Food.objects.all()
+    serializer = FoodSerializer(foods, many=True)
+    return Response(serializer.data)
+
+
+# =========================
+# FETCH ALL ACTIVITIES
+# =========================
+
+@api_view(["GET"])
+def fetch_all_activities(request):
+    activities = Activity.objects.all()
+    serializer = ActivitySerializer(activities, many=True)
     return Response(serializer.data)

@@ -1,6 +1,6 @@
 # core/serializers.py
 from rest_framework import serializers
-from .models import DailyPlan, Meal, DailyPlanActivity, DailyPlanMedicine
+from .models import DailyPlan, Meal, DailyPlanActivity, DailyPlanMedicine, Food, Activity
 
 class MealSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,4 +27,16 @@ class DailyPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DailyPlan
+        fields = "__all__"
+
+
+class FoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = "__all__"
+
+
+class ActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
         fields = "__all__"
