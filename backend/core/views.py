@@ -1,10 +1,11 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
-from .models import User, DailyPlan, Food, Activity
+from .models import User, DailyPlan, Food, Activity, Meal, MealFood, DailyPlanActivity, DailyPlanMedicine
 from .serializers import DailyPlanSerializer, FoodSerializer, ActivitySerializer
 from datetime import date, timedelta
 import json
@@ -315,3 +316,72 @@ def fetch_all_activities(request):
     activities = Activity.objects.all()
     serializer = ActivitySerializer(activities, many=True)
     return Response(serializer.data)
+
+
+# =========================
+# ADD MEALS TO A DAILY PLAN
+# =========================
+
+@api_view(["POST"])
+def add_meals(request, daily_plan_id):
+    data = request.data
+
+    meal = Meal.objects.create(
+        daily_plan_id=daily_plan_id,
+        name=data["name"],
+        time=data["time"]
+    )
+
+    for item in data["meal_foods"]:
+        MealFood.objects.create(
+            meal=meal,
+            food_id=item["food_id"],
+            quantity=item["quantity"]
+        )
+
+    return Response({"id": meal.id})
+
+# =========================
+# ADD ACTIVITIES TO A DAILY PLAN
+# =========================
+
+@api_view(["POST"])
+def add_activities(request, daily_plan_id):
+    data = request.data
+
+    activity = DailyPlanActivity.objects.create(
+        daily_plan_id=daily_plan_id,
+        activity_id=data["activity_id"],
+        time=data["time"],
+        duration=data["duration"]
+    )
+
+    return Response(
+        {
+            "id": activity.id,
+            "message": "Activity created successfully"
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+# =========================
+# ADD MEDICATION INTAKES TO A DAILY PLAN
+# =========================
+
+@api_view(["POST"])
+def add_medicine_intakes(request, daily_plan_id):
+    data = request.data
+
+    medicine = DailyPlanMedicine.objects.create(
+        daily_plan_id=daily_plan_id,
+        medicine_id=data["medicine_id"],
+        time=data["time"]
+    )
+
+    return Response(
+        {
+            "id": medicine.id,
+            "message": "Medicine intake created successfully"
+        },
+        status=status.HTTP_201_CREATED
+    )
