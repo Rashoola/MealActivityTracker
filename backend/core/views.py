@@ -1,4 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
@@ -332,14 +333,45 @@ def add_meals(request, daily_plan_id):
         time=data["time"]
     )
 
-    for item in data["meal_foods"]:
+    save_meal_foods(meal, data["meal_foods"])
+
+    return Response({"id": meal.id})
+
+@api_view(["PUT"])
+def update_meal(request, meal_id):
+    data = request.data
+
+    meal = Meal.objects.get(id=meal_id)
+
+    meal.name = data["name"]
+    meal.time = data["time"]
+    meal.save()
+
+    MealFood.objects.filter(meal=meal).delete()
+
+    save_meal_foods(meal, data["meal_foods"])
+
+    return Response({"id": meal.id})
+
+@api_view(["DELETE"])
+def delete_meal(request, meal_id):
+    meal = get_object_or_404(Meal, id=meal_id)
+
+    # also deletes MealFood automatically if FK is CASCADE
+    meal.delete()
+
+    return Response(
+        {"message": "Meal deleted successfully"},
+        status=status.HTTP_200_OK
+    )
+
+def save_meal_foods(meal, meal_foods):
+    for item in meal_foods:
         MealFood.objects.create(
             meal=meal,
             food_id=item["food_id"],
             quantity=item["quantity"]
         )
-
-    return Response({"id": meal.id})
 
 # =========================
 # ADD ACTIVITIES TO A DAILY PLAN
@@ -364,6 +396,38 @@ def add_activities(request, daily_plan_id):
         status=status.HTTP_201_CREATED
     )
 
+@api_view(["PUT"])
+def update_activity(request, daily_plan_activity_id):
+    data = request.data
+
+    activity = get_object_or_404(
+        DailyPlanActivity,
+        id=daily_plan_activity_id
+    )
+
+    activity.activity_id = data["activity_id"]
+    activity.time = data["time"]
+    activity.duration = data["duration"]
+
+    activity.save()
+
+    return Response(
+        {
+            "id": activity.id,
+            "message": "Activity updated successfully"
+        }
+    )
+
+@api_view(["DELETE"])
+def delete_activity(request, daily_plan_activity_id):
+    activity = get_object_or_404(DailyPlanActivity, id=daily_plan_activity_id)
+
+    activity.delete()
+
+    return Response(
+        {"message": "Activity deleted successfully"},
+        status=status.HTTP_200_OK
+    )
 # =========================
 # ADD MEDICATION INTAKES TO A DAILY PLAN
 # =========================
@@ -384,4 +448,15 @@ def add_medicine_intakes(request, daily_plan_id):
             "message": "Medicine intake created successfully"
         },
         status=status.HTTP_201_CREATED
+    )
+
+@api_view(["DELETE"])
+def delete_medicine_intake(request, medicine_intake_id):
+    medicine = get_object_or_404(DailyPlanMedicine, id=medicine_intake_id)
+
+    medicine.delete()
+
+    return Response(
+        {"message": "Medicine intake deleted successfully"},
+        status=status.HTTP_200_OK
     )

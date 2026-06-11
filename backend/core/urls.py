@@ -15,5 +15,12 @@ urlpatterns = [
 
     path("daily-plans/<int:daily_plan_id>/meals/", views.add_meals),
     path("daily-plans/<int:daily_plan_id>/activities/", views.add_activities),
-    path("daily-plans/<int:daily_plan_id>/medicine-intakes/", views.add_medicine_intakes)
+    path("daily-plans/<int:daily_plan_id>/medicine-intakes/", views.add_medicine_intakes),
+
+    path("meals/<int:meal_id>/update/", views.update_meal),
+    path("activities/<int:daily_plan_activity_id>/update/", views.update_activity),
+
+    path("meals/<int:meal_id>/delete/", views.delete_meal),
+    path("activities/<int:daily_plan_activity_id>/delete/", views.delete_activity),
+    path("medicine-intakes/<int:medicine_intake_id>/delete/", views.delete_medicine_intake)
 ]
