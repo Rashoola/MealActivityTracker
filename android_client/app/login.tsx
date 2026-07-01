@@ -1,22 +1,78 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import { Alert, Button, Text, TextInput, View } from "react-native";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const router = useRouter();
+
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    console.log(username, password);
+  const handleLogin = async () => {
+    // Replace with your computer's IP address
+    const url = "http://192.168.0.17:8000/api/users/login/";
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        Alert.alert("Login failed", "Check your username and password.");
+        return;
+      }
+
+      const data = await response.json();
+
+      console.log("Logged in user:", data);
+
+      await AsyncStorage.setItem(
+        "loggedUser",
+        JSON.stringify(data)
+      );
+
+      Alert.alert("Success", "Logged in successfully.");
+
+      router.push("/home");
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Connection Error",
+        "Could not connect to the server."
+      );
+    }
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
-      <Text style={{ fontSize: 28, marginBottom: 20 }}>Login</Text>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        padding: 20,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 28,
+          marginBottom: 20,
+        }}
+      >
+        Login
+      </Text>
 
       <TextInput
         placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        value={identifier}
+        onChangeText={setIdentifier}
+        autoCapitalize="none"
         style={{
           borderWidth: 1,
           padding: 10,
