@@ -51,6 +51,10 @@ export default function Login() {
     }
   };
 
+  const generateDailyPlan = () => {
+    
+  }
+
   return (
     <View
       style={{
