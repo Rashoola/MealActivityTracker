@@ -6,6 +6,8 @@ import { Alert, Button, Text, TextInput, View } from "react-native";
 export default function Login() {
   const router = useRouter();
 
+  const [user, setUser] = useState(null);
+
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
@@ -41,6 +43,8 @@ export default function Login() {
 
       Alert.alert("Success", "Logged in successfully.");
 
+      generateDailyPlan(data);
+
       router.push("/home");
     } catch (error) {
       console.error(error);
@@ -51,9 +55,52 @@ export default function Login() {
     }
   };
 
-  const generateDailyPlan = () => {
-    
+  const generateDailyPlan = async (loggedUser: any) => {
+  if (loggedUser.daily_plan_generated) {
+    console.log("Daily plan already generated.");
+    return;
   }
+
+  const url = `http://192.168.0.17:8000/api/users/${loggedUser.id}/generate-daily-plan/`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Generate plan error:", errorData);
+      Alert.alert("Error", "Could not generate daily plan.");
+      return;
+    }
+
+    const data = await response.json();
+
+    console.log("Generated daily plan:", data);
+
+    // Update stored user so it doesn't generate again
+    const updatedUser = {
+      ...loggedUser,
+      daily_plan_generated: true,
+    };
+
+    await AsyncStorage.setItem(
+      "loggedUser",
+      JSON.stringify(updatedUser)
+    );
+
+  } catch (error) {
+    console.error(error);
+    Alert.alert(
+      "Connection Error",
+      "Could not connect to the server."
+    );
+  }
+};
 
   return (
     <View
